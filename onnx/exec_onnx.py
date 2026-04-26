@@ -5,7 +5,7 @@ import onnxruntime
 import torch
 
 torch.manual_seed(42)
-example_inputs = torch.randn(2, 4)
+example_inputs = torch.randn(1, 4)
 
 onnx_inputs = [example_inputs.numpy(force=True)]
 print(f"Input length: {len(onnx_inputs)}")

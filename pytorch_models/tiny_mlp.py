@@ -22,7 +22,7 @@ model.eval()
 
 
 torch.manual_seed(42)
-dummy_input = torch.randn(2, 4)
+dummy_input = torch.randn(1, 4)
 
 
 with torch.no_grad():
