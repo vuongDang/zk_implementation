@@ -21,13 +21,14 @@ model = TinyMLP()
 model.eval()
 
 
+torch.manual_seed(42)
 dummy_input = torch.randn(2, 4)
 
 
-# with torch.no_grad():
-#     output = model(dummy_input)
-#     print("Output shape:", output.shape)
-#     print("Output: ", output)
+with torch.no_grad():
+    output = model(dummy_input)
+    print("Output shape:", output.shape)
+    print("Output: ", output)
 
 torch.onnx.export(model, (dummy_input,), "onnx/tiny_mlp.onnx", dynamo=True)
 print("Exported model.onnx")
