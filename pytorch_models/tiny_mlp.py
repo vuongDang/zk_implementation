@@ -15,20 +15,19 @@ class TinyMLP(nn.Module):
         return self.net(x)
 
 
-torch.manual_seed(42)
-model = TinyMLP()
-# Inference mode
-model.eval()
-
+# torch.manual_seed(42)
+# model = TinyMLP()
+# # Inference mode
+# model.eval()
 
 torch.manual_seed(42)
 dummy_input = torch.randn(1, 4)
 
 
-with torch.no_grad():
-    output = model(dummy_input)
-    print("Output shape:", output.shape)
-    print("Output: ", output)
+# with torch.no_grad():
+#     output = model(dummy_input)
+#     print("Output shape:", output.shape)
+#     print("Output: ", output)
 
 torch.onnx.export(
     model, (dummy_input,), "onnx/tiny_mlp.onnx", dynamo=True, opset_version=18

@@ -1,1 +1,6 @@
 generated/
+*.onnx
+*.onnx.data
+pyrightconfig.json
+__pycache__/
+*.pyc

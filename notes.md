@@ -63,3 +63,11 @@ with open(WITNESS) as f:
       - will be useful for proof aggregation if we run out of memory
     - cons: even more complex circuit
 -
+
+### Transformer block issues 
+
+- ezkl does not support pytorch implemetation of transformer out of the box
+  - reimplement a custom transformer block
+- ezkl parser, tract, only support older version of ONNX
+  - onnx op_set version <= 16
+  - set dynamo=False for torch.onnx_export to force older versions
