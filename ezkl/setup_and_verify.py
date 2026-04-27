@@ -46,7 +46,11 @@ if not Path(SETTINGS_FILE).exists():
     ### Generate settings
     # Initial circuit configuration: scale, number of rows ...
     # Produce settings.json file
-    ezkl.gen_settings(onnx_model, SETTINGS_FILE)  # type: ignore
+    # Set weights visibility to hashed public, to use them as input but give hash to verifier
+    run_args = ezkl.PyRunArgs()
+    run_args.param_visibility = "hashed/public"  # type: ignore
+    # run_args.param_visibility = "polycommit"  # kzg commitment
+    ezkl.gen_settings(onnx_model, SETTINGS_FILE, run_args)  # type: ignore
     ### Calibrate settings
     # Refine the initial settings from settings.json through the calibration data
     # "resources" parameter -> minimize circuit size. Can also be "accuracy"
@@ -85,6 +89,7 @@ if not Path(WITNESS).exists():
     # Records all the intermediate values to construct the proof
     ezkl.gen_witness(INPUT_DATA, CIRCUIT_FILE, WITNESS)  # type: ignore
 
+
 if not Path(PROOF).exists():
     ### Generate the proof
     # This is long
@@ -92,4 +97,8 @@ if not Path(PROOF).exists():
 
 ### Verify the proof
 res = ezkl.verify(PROOF, SETTINGS_FILE, VERIF_KEY, SRS_FILE)  # type: ignore
-print(f"Verification is successful?\n{res}")
+print(f"\nWas verification successful?\n{res}")
+# Hash of the weights can be retrieved
+with open(WITNESS) as f:
+    commit_hash = json.load(f)["processed_params"]["poseidon_hash"]
+    print(f"Commitment of the model params: {commit_hash}")

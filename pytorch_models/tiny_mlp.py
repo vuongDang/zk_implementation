@@ -30,5 +30,7 @@ with torch.no_grad():
     print("Output shape:", output.shape)
     print("Output: ", output)
 
-torch.onnx.export(model, (dummy_input,), "onnx/tiny_mlp.onnx", dynamo=True)
+torch.onnx.export(
+    model, (dummy_input,), "onnx/tiny_mlp.onnx", dynamo=True, opset_version=18
+)
 print("Exported model.onnx")
