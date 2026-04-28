@@ -1,11 +1,14 @@
 import asyncio
 import json
+import logging
 from pathlib import Path
 import onnx
 
 import torch
 
 import ezkl  # type: ignore
+
+log = logging.getLogger(__name__)
 
 CALIBRATION_DATA_FILE = None
 SETTINGS_FILE = None
@@ -73,36 +76,34 @@ def setup(model, d_model, batch_size, seq_len):
     run_args = ezkl.PyRunArgs()
     run_args.param_visibility = "hashed/public"  # type: ignore
     # run_args.param_visibility = "polycommit"  # kzg commitment
+    log.info("Generating settings")
     ezkl.gen_settings(ONNX_MODEL, SETTINGS_FILE, run_args)  # type: ignore
 
-    ### Calibrate settings
-    # Refine the initial settings from settings.json through the calibration data
-    # "resources" parameter -> minimize circuit size. Can also be "accuracy"
-    # to maximize precision of the quantized model
+    log.info("Calibrating settings")
     ezkl.calibrate_settings(
         CALIBRATION_DATA_FILE, ONNX_MODEL, SETTINGS_FILE, "resources"
     )  # type: ignore
 
-    ### Fetch the SRS (structured reference string), the trusted setup
     with open(SETTINGS_FILE) as f:
         logrows = json.load(f)["run_args"]["logrows"]
+    log.info(f"logrows={logrows}")
 
     SRS_FILE = f"ezkl/generated/kzg_{logrows}.srs"
     if not Path(SRS_FILE).exists():
-
+        log.info(f"Downloading SRS for logrows={logrows}")
         async def main():
             await ezkl.get_srs(settings_path=SETTINGS_FILE, srs_path=SRS_FILE)  # type: ignore
-
         asyncio.run(main())
+        log.info("SRS download complete")
 
 
 def compile_circuit(reuse=True):
     if not reuse or not Path(CIRCUIT_FILE).exists():
-        ### Compile the circuit
+        log.info("Compiling circuit")
         ezkl.compile_circuit(ONNX_MODEL, CIRCUIT_FILE, SETTINGS_FILE)
 
     if not reuse or not Path(VERIF_KEY).exists() or not Path(PROV_KEY).exists():
-        ### Create verification and proving key
+        log.info("Generating proving and verification keys")
         ezkl.setup(CIRCUIT_FILE, VERIF_KEY, PROV_KEY, SRS_FILE)  # type: ignore
 
 
@@ -115,15 +116,13 @@ def gen_proof(d_model, batch_len, seq_len, reuse=True) -> str:
             json.dump(witness_data, f)
 
     if not reuse or not Path(WITNESS).exists():
-        ### Generate the witness
-        # Runs the circuit with input data
-        # Records all the intermediate values to construct the proof
+        log.info("Generating witness")
         ezkl.gen_witness(INPUT_DATA, CIRCUIT_FILE, WITNESS)  # type: ignore
 
     if not reuse or not Path(PROOF).exists():
-        ### Generate the proof
-        # This is long
+        log.info("Generating proof")
         ezkl.prove(WITNESS, CIRCUIT_FILE, PROV_KEY, PROOF, SRS_FILE)
+        log.info("Proof generation complete")
     return str(PROOF)
 
 

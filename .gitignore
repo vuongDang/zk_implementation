@@ -4,3 +4,6 @@ generated/
 pyrightconfig.json
 __pycache__/
 *.pyc
+*.log
+results/*
+!results/saved

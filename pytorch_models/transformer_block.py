@@ -62,7 +62,7 @@ def create_onnx_model(d_model, nheads, d_ffn, batch_size, seq_len) -> tuple[str,
     torch.manual_seed(42)
     dummy_input = torch.randn(batch_size, seq_len, d_model)
 
-    model_name = f"transformer_block_dmod_{d_model}_nheads_{nheads}_dffn_{d_ffn}"
+    model_name = f"transformer_block_dmod_{d_model}_nheads_{nheads}_dffn_{d_ffn}_batch_{batch_size}_seq_{seq_len}"
     fname = f"onnx/{model_name}.onnx"
     with torch.no_grad():
         torch.onnx.export(
