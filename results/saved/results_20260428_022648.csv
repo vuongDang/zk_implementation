@@ -1,4 +1,4 @@
-d_model,n_heads,d_ffn,batch_size,seq_len,nb_parameters,logrows,circuit_compilation_time,proof_generation_time,proof_verification_time,proof_size
+d_model,n_heads,d_ffn,batch_size,seq_len,nb_parameters,logrows,circuit_compilation_time,proof_size,proof_generation_time,proof_verification_time
 4,1,16,1,2,244,15,5.8307061700033955,49092,6.7979632490023505,0.03355940300389193
 4,1,32,1,1,388,15,3.412581049007713,29079,3.4978814119967865,0.0184108619869221
 4,1,32,1,2,388,15,5.650236419998691,49066,6.51432353699056,0.023532944003818557

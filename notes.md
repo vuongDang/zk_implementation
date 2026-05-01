@@ -71,3 +71,60 @@ with open(WITNESS) as f:
 - ezkl parser, tract, only support older version of ONNX
   - onnx op_set version <= 16
   - set dynamo=False for torch.onnx_export to force older versions
+
+
+### Stats 
+
+- number of attention heads do not change timings
+- seq_len increases timings linearly
+- to predict timings it's better to focus on logrows rather than param numbers
+- proof size seem to be constant
+
+## zk-torch, compiling gpt2
+
+### Issue with exporting gpt2 into onnx
+
+- New versions of module transformers are not compatible with zktorch
+  - we need to use old version of onnx exporter 
+    - because new version (Dynamo Exporter) handles `LayerNorm` natively
+    - zk-torch does not handle `LayerNorm` and need a decomposition of this block
+    - old onnx exporter does this decomposition
+      - to activate it old version when calling `torch.onnx.export` set
+      - `opset_version=13` 
+      - `dynamo=False`
+-  Two solutions 
+  - Decompose `LayerNorm` manually into primitive operations 
+    - this is done by the script `export_gpt2_manual_layernorm.py`
+  - Pick an older version of `transformers`
+    - this is done by the script `export_gpt2_old_transformers.py`
+      - "onnx>=1.15.0",
+      - "torch>=2.1.0",
+      - "transformers==4.37.0",
+      
+### Determining scale factor and ptau
+
+- Scale factor 
+  - What it is
+    - factor which is used to go from floats to finite fields
+    - _quantized = round(real × 2^scale_factor_log)_
+  - higher scale factor better precision -> larger quantized values -> more expensive ptau
+- cq_range_log 
+  - What it is?
+    - lookup tables cover values up to _2^cq_range_log_
+    - all quantized values must fit in this range
+  - hence _log2(max_activation × 2^scale_factor_log) < cq_range_log_
+- ptau or powers of τ
+  - What it is?
+    - trusted setup file containing the elliptic curve points _[τ^0]G, ..., [τ^n]G_
+    - required by KZG commitment scheme
+    - generated once via snarkjs and value of τ is supposed to be destroyed/forgotten
+  - we need to know how many powers of tau is needed for the circuit
+    - number of ptau needs must satisfy two constraints simultaneously
+      - _nb_ptau_log > cq_range_log_ (lookup table size)
+      - _nb_ptau_log > log2(circuit_rows)_ (circuit commitment size)
+  - power of tau too big and this will take up too much memory
+  - power of tau too small and we lose too much precision
+- Calibration process
+  - find max activation value with `calibration_script.py`
+  - find acceptable scale factor_log with `test_scalefactor.py`
+    - compare KL divergence on an output with different scaling factor

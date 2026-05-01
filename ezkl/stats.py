@@ -3,11 +3,14 @@ import json
 import csv
 import time
 import logging
+import signal
 from contextlib import contextmanager
 from pathlib import Path
 import os
 from typing import Any
 import itertools
+
+PROOF_TIMEOUT_S = 600  # 10 minutes per config
 
 import ezkl_pipeline as ezkl_pl
 
@@ -93,9 +96,13 @@ for params in sweep:
     if d_model % n_heads != 0 and d_model <= d_ffn:
         continue
     try:
+        signal.signal(signal.SIGALRM, lambda s, f: (_ for _ in ()).throw(TimeoutError(f"timed out after {PROOF_TIMEOUT_S}s")))
+        signal.alarm(PROOF_TIMEOUT_S)
         stats = get_stats(d_model, n_heads, d_ffn, batch_size, seq_len)
+        signal.alarm(0)
         with open(results_file, "a", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=stats.keys())
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writerow(stats)
     except Exception as e:
-        print(f"FAILED {params}: {e}")
+        signal.alarm(0)
+        log.warning(f"FAILED {params}: {e}")

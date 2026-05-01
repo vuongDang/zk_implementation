@@ -2,7 +2,6 @@ import asyncio
 import json
 import logging
 from pathlib import Path
-import onnx
 
 import torch
 
@@ -65,7 +64,7 @@ def setup(model, d_model, batch_size, seq_len):
     # Afterwards ezkl can compute a scaling factor for quantization.
     # In ezkl quantization range is per model
     # Create 20 samples of 4 features
-    cal_data = {"input_data": [torch.randn(batch_size * seq_len * d_model).tolist() for _ in range(20)]}
+    cal_data = {"input_data": [torch.randn(batch_size * seq_len * d_model).mul(0.1).tolist() for _ in range(20)]}
     with open(CALIBRATION_DATA_FILE, "w") as f:
         json.dump(cal_data, f)
 
