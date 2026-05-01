@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+import json
+from pathlib import Path
 
 
 class TinyMLP(nn.Module):
@@ -15,14 +17,19 @@ class TinyMLP(nn.Module):
         return self.net(x)
 
 
-# torch.manual_seed(42)
-# model = TinyMLP()
-# # Inference mode
-# model.eval()
-
 torch.manual_seed(42)
+model = TinyMLP()
+model.eval()
+
 dummy_input = torch.randn(1, 4)
 
+
+root = Path.cwd()
+input_data = {"input_data": dummy_input.numpy().tolist()}
+output_dir = root / "zk-torch" / "generated"
+output_dir.parent.mkdir(parents=True, exist_ok=True)
+with open(output_dir / "tiny_mlp_input.json", "w") as f:
+    json.dump(input_data, f)
 
 # with torch.no_grad():
 #     output = model(dummy_input)

@@ -1,0 +1,27 @@
+task: gpt2
+onnx:
+    model_path: onnx/gpt2.onnx
+    input_path: zk-torch/generated/gpt2_input.json
+ptau:
+    ptau_path: zk-torch/generated/challenge_24
+    pow_len_log: 24
+    loaded_pow_len_log: 24
+sf:
+    scale_factor_log: 10
+    cq_range_log: 23
+    cq_range_lower_log: 22
+prover:
+    model_path: zk-torch/generated/prover/gpt2_models
+    setup_path: zk-torch/generated/prover/gpt2_setups
+    enc_model_path: zk-torch/generated/prover/gpt2_modelsEnc
+    enc_input_path: zk-torch/generated/prover/gpt2_inputsEnc
+    enc_output_path: zk-torch/generated/prover/gpt2_outputsEnc
+    proof_path: zk-torch/generated/prover/gpt2_proofs
+    acc_proof_path: zk-torch/generated/prover/gpt2_acc_proofs
+    final_proof_path: zk-torch/generated/prover/gpt2_final_proofs
+    enable_layer_setup: true
+verifier:
+    enc_model_path: zk-torch/generated/verifier/gpt2_modelsEnc
+    enc_input_path: zk-torch/generated/verifier/gpt2_inputsEnc
+    enc_output_path: zk-torch/generated/verifier/gpt2_outputsEnc
+    proof_path: zk-torch/generated/verifier/gpt2_proofs

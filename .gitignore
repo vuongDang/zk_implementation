@@ -7,3 +7,4 @@ __pycache__/
 *.log
 results/*
 !results/saved
+layer_setup/
