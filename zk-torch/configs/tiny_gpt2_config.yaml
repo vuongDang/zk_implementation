@@ -1,0 +1,27 @@
+task: tiny_gpt2
+onnx:
+    model_path: onnx/tiny_gpt2.onnx
+    input_path: zk-torch/generated/tiny_gpt2_input.json
+ptau:
+    ptau_path: zk-torch/generated/challenge_17
+    pow_len_log: 17
+    loaded_pow_len_log: 17
+sf:
+    scale_factor_log: 7
+    cq_range_log: 16
+    cq_range_lower_log: 15
+prover:
+    model_path: zk-torch/generated/prover/tiny_gpt2_models
+    setup_path: zk-torch/generated/prover/tiny_gpt2_setups
+    enc_model_path: zk-torch/generated/prover/tiny_gpt2_modelsEnc
+    enc_input_path: zk-torch/generated/prover/tiny_gpt2_inputsEnc
+    enc_output_path: zk-torch/generated/prover/tiny_gpt2_outputsEnc
+    proof_path: zk-torch/generated/prover/tiny_gpt2_proofs
+    acc_proof_path: zk-torch/generated/prover/tiny_gpt2_acc_proofs
+    final_proof_path: zk-torch/generated/prover/tiny_gpt2_final_proofs
+    enable_layer_setup: true
+verifier:
+    enc_model_path: zk-torch/generated/prover/tiny_gpt2_modelsEnc
+    enc_input_path: zk-torch/generated/prover/tiny_gpt2_inputsEnc
+    enc_output_path: zk-torch/generated/prover/tiny_gpt2_outputsEnc
+    proof_path: zk-torch/generated/prover/tiny_gpt2_proofs

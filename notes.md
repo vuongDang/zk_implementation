@@ -128,3 +128,8 @@ with open(WITNESS) as f:
   - find max activation value with `calibration_script.py`
   - find acceptable scale factor_log with `test_scalefactor.py`
     - compare KL divergence on an output with different scaling factor
+- Calibration rules 
+  - cq_range_log > 2 * scale_factor_log
+  - pow_len_log > cq_range_log
+  - cq_range_lower_log ~~cq_range_log - 1
+  - LayerNorm ε >= 1 / (scale_factor * round(ε * 2)

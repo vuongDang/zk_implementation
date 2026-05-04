@@ -58,6 +58,6 @@ with open(output_dir / "tiny_mlp_input.json", "w") as f:
 #     print("Output: ", output)
 
 torch.onnx.export(
-    model, (dummy_input,), "onnx/tiny_mlp.onnx", dynamo=False, opset_version=13
+    model, (dummy_input,), "onnx/tiny_mlp.onnx", dynamo=False, opset_version=11
 )
 print("Exported model.onnx")
