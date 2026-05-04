@@ -3,13 +3,13 @@ onnx:
     model_path: onnx/tiny_mlp.onnx
     input_path: zk-torch/generated/tiny_mlp_input.json
 ptau:
-    ptau_path: zk-torch/generated/challenge_8
-    pow_len_log: 8
-    loaded_pow_len_log: 8
+    ptau_path: zk-torch/generated/challenge_7
+    pow_len_log: 7
+    loaded_pow_len_log: 7
 sf:
     scale_factor_log: 3
-    cq_range_log: 7
-    cq_range_lower_log: 6
+    cq_range_log: 6
+    cq_range_lower_log: 5
 prover:
     model_path: zk-torch/generated/prover/tiny_mlp_models
     setup_path: zk-torch/generated/prover/tiny_mlp_setups
@@ -21,7 +21,7 @@ prover:
     final_proof_path: zk-torch/generated/prover/tiny_mlp_final_proofs
     enable_layer_setup: true
 verifier:
-    enc_model_path: zk-torch/generated/verifier/tiny_mlp_modelsEnc
-    enc_input_path: zk-torch/generated/verifier/tiny_mlp_inputsEnc
-    enc_output_path: zk-torch/generated/verifier/tiny_mlp_outputsEnc
-    proof_path: zk-torch/generated/verifier/tiny_mlp_proofs
+    enc_model_path: zk-torch/generated/prover/tiny_mlp_modelsEnc
+    enc_input_path: zk-torch/generated/prover/tiny_mlp_inputsEnc
+    enc_output_path: zk-torch/generated/prover/tiny_mlp_outputsEnc
+    proof_path: zk-torch/generated/prover/tiny_mlp_proofs

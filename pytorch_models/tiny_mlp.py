@@ -3,18 +3,39 @@ import torch.nn as nn
 import json
 from pathlib import Path
 
+class TinyMLP(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.w1 = nn.Parameter(torch.randn(16, 4) * 0.1)
+        self.b1 = nn.Parameter(torch.zeros(16))
+        self.w2 = nn.Parameter(torch.randn(2, 16) * 0.1)
+        self.b2 = nn.Parameter(torch.zeros(2))
+
+    def forward(self, x):
+        x = torch.matmul(x, self.w1.t()) + self.b1
+        x = torch.relu(x)
+        x = torch.matmul(x, self.w2.t()) + self.b2
+        return x
 
 class TinyMLP(nn.Module):
     def __init__(self):
         super().__init__()
-        self.net = nn.Sequential(
-            nn.Linear(4, 16),
-            nn.ReLU(),
-            nn.Linear(16, 2),
-        )
+        self.w1 = nn.Parameter(torch.randn(16, 4) * 0.1)
+        self.b1 = nn.Parameter(torch.zeros(16))
+        self.w2 = nn.Parameter(torch.randn(2, 16) * 0.1)
+        self.b2 = nn.Parameter(torch.zeros(2))
+        # self.net = nn.Sequential(
+        #     nn.Linear(4, 16),
+        #     nn.ReLU(),
+        #     nn.Linear(16, 2),
+        # )
 
     def forward(self, x):
-        return self.net(x)
+        x = torch.matmul(x, self.w1.t()) + self.b1
+        x = torch.relu(x)
+        x = torch.matmul(x, self.w2.t()) + self.b2
+        return x
+        # return self.net(x)
 
 
 torch.manual_seed(42)
@@ -37,6 +58,6 @@ with open(output_dir / "tiny_mlp_input.json", "w") as f:
 #     print("Output: ", output)
 
 torch.onnx.export(
-    model, (dummy_input,), "onnx/tiny_mlp.onnx", dynamo=True, opset_version=18
+    model, (dummy_input,), "onnx/tiny_mlp.onnx", dynamo=False, opset_version=13
 )
 print("Exported model.onnx")
