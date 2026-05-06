@@ -1,0 +1,27 @@
+task: bert_tiny
+onnx:
+    model_path: onnx/bert_tiny_rt.onnx
+    input_path: zk-torch/generated/bert_tiny_input.json
+ptau:
+    ptau_path: zk-torch/generated/challenge_24
+    pow_len_log: 24
+    loaded_pow_len_log: 24
+sf:
+    scale_factor_log: 6
+    cq_range_log: 23
+    cq_range_lower_log: 22
+prover:
+    model_path: zk-torch/generated/prover/bert_tiny_models
+    setup_path: zk-torch/generated/prover/bert_tiny_setups
+    enc_model_path: zk-torch/generated/prover/bert_tiny_modelsEnc
+    enc_input_path: zk-torch/generated/prover/bert_tiny_inputsEnc
+    enc_output_path: zk-torch/generated/prover/bert_tiny_outputsEnc
+    proof_path: zk-torch/generated/prover/bert_tiny_proofs
+    acc_proof_path: zk-torch/generated/prover/bert_tiny_acc_proofs
+    final_proof_path: zk-torch/generated/prover/bert_tiny_final_proofs
+    enable_layer_setup: true
+verifier:
+    enc_model_path: zk-torch/generated/verifier/bert_tiny_modelsEnc
+    enc_input_path: zk-torch/generated/verifier/bert_tiny_inputsEnc
+    enc_output_path: zk-torch/generated/verifier/bert_tiny_outputsEnc
+    proof_path: zk-torch/generated/verifier/bert_tiny_proofs

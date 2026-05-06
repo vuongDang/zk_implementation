@@ -1,6 +1,5 @@
 from transformers import GPT2Model, GPT2Config
-from transformers.generation.utils import EpsilonLogitsWarper
-from gpt2 import  export_gpt2_onnx
+from gpt2 import export_gpt2_onnx
 
 SEQ_LEN = 4
 VOCAB_SIZE = 100
@@ -15,4 +14,4 @@ config = GPT2Config(
     n_layer=1,
 )
 model_config = GPT2Model(config)
-export_gpt2_onnx("tiny_gpt2", model_config, VOCAB_SIZE, SEQ_LEN)
+export_gpt2_onnx("tiny_gpt2", model_config, SEQ_LEN)

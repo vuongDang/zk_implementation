@@ -1,8 +1,7 @@
 from transformers import BertModel
-from pathlib import Path
-import json
-import onnx
 import torch
+
+from onnx_utils import get_paths, save_input_json, export_onnx
 
 
 class BertWrapper(torch.nn.Module):
@@ -22,28 +21,15 @@ class BertWrapper(torch.nn.Module):
 
 
 def export_bert_onnx(model_name, hf_id, seq_len):
-    """Export BERT model to ONNX, decompose LayerNorm, save dummy input."""
-    hf_model = BertModel.from_pretrained(hf_id)
-    model = BertWrapper(hf_model)
+    model = BertWrapper(BertModel.from_pretrained(hf_id))
     model.eval()
 
     dummy_input = torch.zeros(1, seq_len, dtype=torch.long)
-    root = Path.cwd()
-    output_dir = root / "zk-torch" / "generated"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    with open(output_dir / f"{model_name}_input.json", "w") as f:
-        json.dump({"input_data": dummy_input.numpy().tolist()}, f)
+    output_dir, onnx_path = get_paths(model_name)
+    save_input_json(output_dir, model_name, dummy_input)
 
-    onnx_path = str(root / "onnx" / f"{model_name}.onnx")
-    Path(onnx_path).parent.mkdir(parents=True, exist_ok=True)
-
-    torch.onnx.export(model, dummy_input, onnx_path, dynamo=False, opset_version=11)
-    m = onnx.load(onnx_path)
-
-    ops = {n.op_type for n in m.graph.node}
-    print("Opset:", m.opset_import)
-    print("Ops:", ops)
-    assert "LayerNormalization" not in ops, (
+    m = export_onnx(model, dummy_input, onnx_path)
+    assert "LayerNormalization" not in {n.op_type for n in m.graph.node}, (
         "opset 11 should never emit LayerNormalization — bump to >=17 if you see this"
     )
 
