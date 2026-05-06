@@ -15,3 +15,8 @@ dependencies = [
     "onnxscript>=0.7.0",
     "runtime>=0.1.4",
 ]
+
+[dependency-groups]
+dev = [
+    "onnxruntime>=1.25.1",
+]

@@ -133,3 +133,64 @@ with open(WITNESS) as f:
   - pow_len_log > cq_range_log
   - cq_range_lower_log ~~cq_range_log - 1
   - LayerNorm ε >= 1 / (scale_factor * round(ε * 2)
+
+### GPT2 vs BERT 
+
+  Why BERT works and GPT-2 doesn't
+
+  Four reasons, roughly in order of how much they matter:
+
+  1. Outlier features are a decoder-only / scale problem.
+  The Dettmers et al. ("LLM.int8()") paper found that concentrated outlier features in the residual
+  stream — a few channels with magnitudes 100-1000× larger than the rest — emerge only above ~6.7B
+  parameters in decoder-only LMs. They're an artifact of how autoregressive decoders learn to route
+  long-range information through specific feature dimensions. BERT is bidirectional and well below
+  that threshold, so its activations stay in a tight magnitude range (~2-30 across all channels).
+  GPT-2-124M is small but still decoder-only, and its outlier features, while milder than GPT-3, are
+  already enough to push activation magnitudes to ~4000.
+
+  2. Pre-LN vs Post-LN.
+  - GPT-2: x + Attn(LN(x)) — LayerNorm before each sublayer. The residual stream accumulates over
+  depth without ever being directly normalized.
+  - BERT (original): LN(x + Attn(x)) — LayerNorm after each sublayer. The residual is renormalized at
+   every step.
+
+  Result: BERT's residual magnitudes are bounded by construction. GPT-2's grow with depth. After
+  squaring in LayerNorm, this is a 10-50× difference.
+
+  3. GELU variant.
+  - GPT-2 uses tanh-approx GELU: 0.5 · x · (1 + tanh(√(2/π) · (x + 0.044715·x³))) — exports as the
+  multi-op subgraph with Pow(x, 3) we wrote replace_gelu.py for. The x³ is itself a multiplication
+  producing SF³-scale intermediates.
+  - BERT uses erf-based GELU: 0.5 · x · (1 + erf(x/√2)) — exports as a single Erf op, which zk-torch
+  handles as a univariate lookup. Zero rewriter needed, no SF² or SF³ intermediate.
+
+  This single difference removes one of the worst SF³-scale offenders for free.
+
+  4. Attention mask format.
+  - GPT-2: causal mask uses Where(mask, scores, -inf). The -inf constant exports as float32 max
+  (3.4e38) — that's the cq=137 we saw, literally unrepresentable in fixed point.
+  - BERT: padding mask is additive — scores + (-10000) · (1 - mask). The -10000 is a normal,
+  representable constant, and when there's no padding (mask=ones), the term is zero.
+
+  Our BertWrapper passes attention_mask=None, so HF generates ones internally and the mask is
+  effectively absent. No -inf constant ever appears in the graph.
+
+  ---
+  Quick magnitude comparison
+
+  ┌───────────────────────────┬─────────────────┬───────────────────────────────────┬───────────┐
+  │            Op             │   GPT-2 worst   │          BERT estimated           │   bits    │
+  │                           │                 │                                   │   saved   │
+  ├───────────────────────────┼─────────────────┼───────────────────────────────────┼───────────┤
+  │ LayerNorm Pow(x,2)        │ (4000)² = 1.6e7 │ (30)² = 900                       │ ~14       │
+  ├───────────────────────────┼─────────────────┼───────────────────────────────────┼───────────┤
+  │ GELU Pow(x,3) (tanh       │ (4000)³ =       │ (no equivalent — Erf is           │ ~all      │
+  │ approx)                   │ 6.4e10          │ univariate)                       │           │
+  ├───────────────────────────┼─────────────────┼───────────────────────────────────┼───────────┤
+  │ Attention mask constant   │ 3.4e38          │ 0 (or 10000)                      │ ~107      │
+  └───────────────────────────┴─────────────────┴───────────────────────────────────┴───────────┘
+
+  So you're not just slightly better off with BERT — you're categorically in a different regime where
+   SF can stay reasonable, fixed-point precision works, and ptau-22-ish is realistic. GPT-2's
+  problems aren't "transformer problems," they're "decoder-only-LM-with-outlier-features problems."

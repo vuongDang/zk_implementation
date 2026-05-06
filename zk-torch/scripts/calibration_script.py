@@ -6,6 +6,8 @@ def hook_fn(module, input, output):
     if isinstance(output, torch.Tensor):
         val = output.abs().max().item()
         activations.append(val)
+    for p in module.parameters(recurse=False):
+        activations.append(p.abs().max().item())
 
 model = GPT2Model.from_pretrained("gpt2")
 model.eval()
@@ -34,7 +36,7 @@ for h in hooks:
     h.remove()
 
 # compute required range
-scale_factor_log = 12
+scale_factor_log = 8
 max_activation = max(activations)
 max_quantized = max_activation * (2 ** scale_factor_log)
 cq_range_log = int(np.ceil(np.log2(max_quantized))) + 1  # +1 safety margin
@@ -47,4 +49,3 @@ print(f"Recommended pow_len_log: {cq_range_log + 1}")
 # then print sorted
 for val in sorted(activations, reverse=True)[:10]:
     print(f"{val:.4f}")
-

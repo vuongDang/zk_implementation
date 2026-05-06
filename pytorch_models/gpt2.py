@@ -7,9 +7,6 @@ from onnx import helper, numpy_helper
 import torch
 
 
-SEQ_LEN = 64
-VOCAB_SIZE = 50257
-
 # We need to replace onnx layernorm with primitives handled by zktorch
 def decompose_layer_norm(model):
     """Replace LayerNormalization nodes with primitives that zk-torch supports."""
@@ -133,8 +130,6 @@ def export_gpt2_onnx(model_name, model_config, vocab_size, seq_len, ):
     torch.onnx.export(model, dummy_input, onnx_path, dynamo=False, opset_version=11)
     m = onnx.load(onnx_path)
 
-    sess_orig = ort.InferenceSession(onnx_path)
-    input_name = sess_orig.get_inputs()[0].name
 
     m = decompose_layer_norm(m)
     onnx.save(m, onnx_path)
@@ -145,6 +140,8 @@ def export_gpt2_onnx(model_name, model_config, vocab_size, seq_len, ):
     assert "LayerNormalization" not in ops
     # print("OK: LayerNormalization decomposed into primitives")
 
+    # sess_orig = ort.InferenceSession(onnx_path)
+    # input_name = sess_orig.get_inputs()[0].name
     # sess_decomp = ort.InferenceSession(onnx_path)
     # diffs = []
     # for i in range(10):
@@ -158,7 +155,8 @@ def export_gpt2_onnx(model_name, model_config, vocab_size, seq_len, ):
     # assert all(d < 1e-2 for d in diffs), f"Decomposition changed outputs: {diffs}"
     # print("OK: decomposition is numerically equivalent")
 
-
 if __name__ == "__main__":
+    SEQ_LEN = 8
+    VOCAB_SIZE = 50257
     model_config = GPT2Model.from_pretrained("gpt2")
     export_gpt2_onnx("gpt2",  model_config,  VOCAB_SIZE, SEQ_LEN)
