@@ -35,12 +35,6 @@ def export_bert_onnx(model_name, hf_id, seq_len):
 
 
 if __name__ == "__main__":
-    SEQ_LEN = 32
-    MODEL = "bert_tiny"  # flip to "bert_base" once tiny is green
-
-    if MODEL == "bert_tiny":
-        export_bert_onnx("bert_tiny", "prajjwal1/bert-tiny", SEQ_LEN)
-    elif MODEL == "bert_base":
-        export_bert_onnx("bert_base", "bert-base-uncased", SEQ_LEN)
-    else:
-        raise ValueError(f"Unknown MODEL: {MODEL}")
+    SEQ_LEN = 1
+    MODEL = "bert_base"
+    export_bert_onnx("bert_base", "bert-base-uncased", SEQ_LEN)

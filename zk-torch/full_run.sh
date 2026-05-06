@@ -13,6 +13,11 @@ set -euo pipefail
 # PTAU_LOG=17
 # FEATURES="fold,mock_prove"
 
+# # BERT base
+# MODEL="bert_base"
+# PTAU_LOG=24
+# FEATURES="fold,mock_prove"
+
 # Tiny BERT
 MODEL="bert_tiny"
 PTAU_LOG=24
