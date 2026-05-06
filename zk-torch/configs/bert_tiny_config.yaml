@@ -21,7 +21,7 @@ prover:
     final_proof_path: zk-torch/generated/prover/bert_tiny_final_proofs
     enable_layer_setup: true
 verifier:
-    enc_model_path: zk-torch/generated/verifier/bert_tiny_modelsEnc
-    enc_input_path: zk-torch/generated/verifier/bert_tiny_inputsEnc
-    enc_output_path: zk-torch/generated/verifier/bert_tiny_outputsEnc
-    proof_path: zk-torch/generated/verifier/bert_tiny_proofs
+    enc_model_path: zk-torch/generated/prover/bert_tiny_modelsEnc
+    enc_input_path: zk-torch/generated/prover/bert_tiny_inputsEnc
+    enc_output_path: zk-torch/generated/prover/bert_tiny_outputsEnc
+    proof_path: zk-torch/generated/prover/bert_tiny_proofs

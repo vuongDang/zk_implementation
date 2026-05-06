@@ -55,4 +55,5 @@ case "$MODEL" in
 esac
 
 [ -f "$PTAU_DIR/challenge_$PTAU_LOG" ] || uv run "$SCRIPTS_DIR/generate_ptau.sh" "$PTAU_LOG"
+export RUSTFLAGS="-Awarnings"
 cargo run --release --manifest-path "$MANIFEST" --bin zk_torch --features "$FEATURES" -- "$CONFIG"

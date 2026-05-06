@@ -14,8 +14,8 @@ mkdir -p "$GENERATED_DIR"
 
 npm install -g snarkjs
 
-snarkjs powersoftau new bn128 "$POWER" "$GENERATED_DIR/pot${POWER}_0000.ptau" -v
-snarkjs powersoftau contribute "$GENERATED_DIR/pot${POWER}_0000.ptau" "$GENERATED_DIR/pot${POWER}_0001.ptau" \
-    --name="contribution" -v -e="some random entropy"
-snarkjs powersoftau prepare phase2 "$GENERATED_DIR/pot${POWER}_0001.ptau" "$GENERATED_DIR/pot${POWER}_final.ptau" -v
+# snarkjs powersoftau new bn128 "$POWER" "$GENERATED_DIR/pot${POWER}_0000.ptau" -v
+# snarkjs powersoftau contribute "$GENERATED_DIR/pot${POWER}_0000.ptau" "$GENERATED_DIR/pot${POWER}_0001.ptau" \
+#     --name="contribution" -v -e="some random entropy"
+# snarkjs powersoftau prepare phase2 "$GENERATED_DIR/pot${POWER}_0001.ptau" "$GENERATED_DIR/pot${POWER}_final.ptau" -v
 snarkjs powersoftau export challenge "$GENERATED_DIR/pot${POWER}_final.ptau" "$GENERATED_DIR/challenge_${POWER}"
