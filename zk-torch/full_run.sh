@@ -8,10 +8,11 @@ set -euo pipefail
 # PTAU_LOG=24
 # FEATURES="fold,mock_prove"  # replace with "fold" for real proofs
 
-# # Tiny GPT2
-# MODEL="tiny_gtp2"
-# PTAU_LOG=17
+# Tiny GPT2
+MODEL="tiny_gpt2"
+PTAU_LOG=24
 # FEATURES="fold,mock_prove"
+FEATURES="fold"
 
 # # BERT base
 # MODEL="bert_base"
@@ -19,9 +20,10 @@ set -euo pipefail
 # FEATURES="fold,mock_prove"
 
 # Tiny BERT
-MODEL="bert_tiny"
-PTAU_LOG=24
-FEATURES="fold,mock_prove"
+# MODEL="bert_tiny"
+# PTAU_LOG=24
+# FEATURES="fold,mock_prove"
+# FEATURES="fold"
 
 # # Tiny MLP
 # MODEL="tiny_mlp"
@@ -55,6 +57,16 @@ case "$MODEL" in
     uv run python ../zk-torch/zk-torch-repo/scratch/bert/replace_reshape_trans.py
     mv Bert_replaced.onnx "${MODEL}_rt.onnx"
     rm Bert.onnx
+    popd > /dev/null
+    ;;
+  tiny_gpt2|gpt2)
+    # Replace tanh-GELU subgraph with a single Gelu op (Erf-based, fewer CQ blocks).
+    # The script hardcodes GPTj.onnx → GPTj_gelu.onnx; symlink + rename around it.
+    pushd onnx > /dev/null
+    ln -sf "${MODEL}.onnx" GPTj.onnx
+    uv run python ../zk-torch/zk-torch-repo/scratch/gptj/replace_gelu.py
+    mv GPTj_gelu.onnx "${MODEL}_gelu.onnx"
+    rm GPTj.onnx
     popd > /dev/null
     ;;
 esac

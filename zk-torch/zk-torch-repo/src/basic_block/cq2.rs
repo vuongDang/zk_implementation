@@ -393,10 +393,14 @@ impl BasicBlock for CQ2BasicBlock {
     let agg_model: G1Affine = (model[0].g1 + (model[1].g1 * alpha)).into();
 
     let beta = Fr::rand(rng);
-    let mut result = beta == proof.2[0];
+    let check_beta = beta == proof.2[0];
     let proof_g1 = CQG1Terms::from_vec(&proof.0);
-    result &= agg_model == proof_g1.Model_g1_blinded;
-    result &= agg_input == proof_g1.Input_g1_blinded;
+    let check_model = agg_model == proof_g1.Model_g1_blinded;
+    let check_input = agg_input == proof_g1.Input_g1_blinded;
+    if !check_beta || !check_model || !check_input {
+      eprintln!("CQ2 verify fail: beta_ok={check_beta} model_ok={check_model} input_ok={check_input} proof.0.len()={} proof.2.len()={}", proof.0.len(), proof.2.len());
+    }
+    let result = check_beta & check_model & check_input;
     assert!(result, "acc_proof for cq2 is not valid");
     vec![]
   }

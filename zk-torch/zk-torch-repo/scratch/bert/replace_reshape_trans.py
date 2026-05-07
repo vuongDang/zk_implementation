@@ -18,7 +18,7 @@ def replace_reshape_transpose(model):
     nodes_to_add = []
 
     for idx, transpose_node in enumerate(list(nodes)):
-        print("node")
+        # print("node")
         if transpose_node.op_type != 'Transpose':
             continue
 

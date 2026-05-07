@@ -35,6 +35,6 @@ def export_bert_onnx(model_name, hf_id, seq_len):
 
 
 if __name__ == "__main__":
-    SEQ_LEN = 32
+    SEQ_LEN = 1
     MODEL = "bert_tiny"  # flip to "bert_base" once tiny is green
     export_bert_onnx(MODEL, "prajjwal1/bert-tiny", SEQ_LEN)

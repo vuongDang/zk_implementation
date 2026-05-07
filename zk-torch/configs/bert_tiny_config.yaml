@@ -1,15 +1,16 @@
 task: bert_tiny
 onnx:
-    model_path: onnx/bert_tiny_rt.onnx
+    # model_path: onnx/bert_tiny_rt.onnx
+    model_path: onnx/bert_tiny.onnx
     input_path: zk-torch/generated/bert_tiny_input.json
 ptau:
     ptau_path: zk-torch/generated/challenge_24
     pow_len_log: 24
     loaded_pow_len_log: 24
 sf:
-    scale_factor_log: 6
-    cq_range_log: 23
-    cq_range_lower_log: 22
+    scale_factor_log: 4
+    cq_range_log: 18
+    cq_range_lower_log: 17
 prover:
     model_path: zk-torch/generated/prover/bert_tiny_models
     setup_path: zk-torch/generated/prover/bert_tiny_setups
